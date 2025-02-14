@@ -1,0 +1,251 @@
+---
+title: "2024 KPMP Pseudobulk Files "
+author: "Jonathan Nelson"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    toc_float: 
+      collapsed: true
+      smooth_scroll: false
+    number_sections: yes
+    theme: bootstrap
+    df_print: paged
+    code_folding: hide
+    highlight: pygments
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, echo=T, error=FALSE, message=FALSE, warning=FALSE}
+
+if (!require("dplyr")) {install.packages("dplyr"); require("dplyr")}
+if (!require("Seurat")) {install.packages("Seurat"); require("Seurat")}
+if (!require("SeuratDisk")) {install.packages("SeuratDisk"); require("SeuratDisk")}
+if (!require("knitr")) {install.packages("knitr"); require("knitr")}
+if (!require("ggplot2")) {install.packages("ggplot2"); require("ggplot2")}
+if (!requireNamespace('BiocManager', quietly = TRUE)) {install.packages('BiocManager'); require("BiocManager")}
+if (!require("here")) {install.packages("here"); require("here")}
+if (!require("paletteer")) {install.packages("paletteer"); require("paletteer")} # color palette
+if (!require("grDevices")) {install.packages("grDevices"); require("grDevices")} # for grDevices palette
+if (!require("tidyverse")) {install.packages("tidyverse"); require("tidyverse")} # for data frame transformation
+if (!require("tibble")) {install.packages("tibble"); require("tibble")} # for table transformation
+if (!require("geneName")) {install.packages("geneName"); require("geneName")}
+if (!require("ggrepel")) {install.packages("ggrepel"); require("ggrepel")}
+if (!require("gghighlight")) {install.packages("gghighlight"); require("gghighlight")}
+if (!require("ggpmisc")) {install.packages("ggpmisc"); require("ggpmisc")}
+if (!require("ggupset")) {install.packages("ggupset"); require("ggupset")}
+if (!require("RColorBrewer")) {install.packages("RColorBrewer"); require("RColorBrewer")}
+if (!require("viridis")) {install.packages("viridis"); require("viridis")}
+
+library(SeuratData)
+library(openxlsx)
+library(gplots)
+library(ggvenn)
+
+```
+
+# Introduction
+
+This file was made to create pseudobulk matrix files from the 2024 KPMP snRNAseq data release in order to identify DEGs that are related to PFAS exposure. 
+
+The Pseudobulk and cell count files are made at 3 different levels of annotation: <br>
+1) Class <br>
+2) Subclass.l1 <br>
+3) Subclass.l2 <br>
+
+Working with the KPMP snRNAseq file: **WashU-Altos_KPMP-Biopsy_10X-R_01082024.h5Seurat**
+
+# 2024 snRNASeq KPMP Object
+
+## Load KPMP object (2024 data file)
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+Sys.time()
+KPMP <- LoadH5Seurat(here("WashU-Altos_KPMP-Biopsy_10X-R_01082024.h5Seurat")) 
+Sys.time()
+
+head(KPMP@meta.data)
+
+DimPlot(KPMP, group.by = "subclass.l1", label = TRUE)
+
+KPMP
+
+```
+
+## Add Clinical information into meta.data
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+meta <- read.csv(here("OpenAccessClinicalData.csv"))
+
+df <- FetchData(KPMP, "patient") %>% rownames_to_column(var = "CellID")
+
+df <- left_join(df, meta, by = c("patient" = "Participant.ID")) %>% column_to_rownames(var = "CellID")
+
+KPMP <- AddMetaData(KPMP, df)
+
+head(KPMP@meta.data)
+
+unique(KPMP@meta.data$Enrollment.Category)
+
+KPMP@meta.data$Enrollment.Category <- factor(KPMP@meta.data$Enrollment.Category, levels = c("Healthy Reference", "AKI", "CKD", "DM-R"))
+
+```
+
+# Create Files
+
+## Subclass.l1
+
+### Pseudobulk Matrix
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+DimPlot(KPMP, group.by = "subclass.l1", label = TRUE)
+
+ShotgunPB <- AggregateExpression(KPMP, 
+                           group.by = c("subclass.l1", "patient"), 
+                           assays = 'RNA', 
+                           slot = "counts",
+                           return.seurat = FALSE)
+
+ShotgunPB <- ShotgunPB$RNA
+ShotgunPB <- as.matrix(ShotgunPB)  # Convert to matrix
+ShotgunPB <- t(ShotgunPB) # Transpose matrix
+ShotgunPB <- as.data.frame(ShotgunPB) # Convert from matrix to dataframe 
+
+ShotgunPB_20 <- ShotgunPB[, 1:20]
+
+head(ShotgunPB_20, 15)
+
+write.csv(ShotgunPB, here("2024KPMP_Psuedobulk_Subclassl1.csv"))
+
+```
+
+### Cell Number
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+Idents(KPMP) <- KPMP@meta.data$subclass.l1
+
+t1 <- table(Idents(KPMP), KPMP@meta.data$patient)
+
+t1
+
+t1 <- as.matrix(t1)
+t2 <- as.data.frame(t1) 
+
+t2
+
+write.csv(t2, here("2024KPMP_CellNumber_Subclassl1.csv"))
+
+```
+
+## Subclass.l2
+
+### Pseudobulk Matrix
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+DimPlot(KPMP, group.by = "subclass.l2", label = TRUE)
+
+ShotgunPB <- AggregateExpression(KPMP, 
+                           group.by = c("subclass.l2", "patient"), 
+                           assays = 'RNA', 
+                           slot = "counts",
+                           return.seurat = FALSE)
+
+ShotgunPB <- ShotgunPB$RNA
+ShotgunPB <- as.matrix(ShotgunPB)  # Convert to matrix
+ShotgunPB <- t(ShotgunPB) # Transpose matrix
+ShotgunPB <- as.data.frame(ShotgunPB) # Convert from matrix to dataframe 
+
+ShotgunPB_20 <- ShotgunPB[, 1:20]
+
+head(ShotgunPB_20, 15)
+
+write.csv(ShotgunPB, here("2024KPMP_Psuedobulk_Subclassl2.csv"))
+
+```
+
+### Cell Number
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+Idents(KPMP) <- KPMP@meta.data$subclass.l2
+
+t1 <- table(Idents(KPMP), KPMP@meta.data$patient)
+
+t1
+
+t1 <- as.matrix(t1)
+t2 <- as.data.frame(t1) 
+
+t2
+
+write.csv(t2, here("2024KPMP_CellNumber_Subclassl2.csv"))
+
+```
+
+## Class
+
+### Pseudobulk Matrix
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+DimPlot(KPMP, group.by = "class", label = TRUE)
+
+ShotgunPB <- AggregateExpression(KPMP, 
+                           group.by = c("class", "patient"), 
+                           assays = 'RNA', 
+                           slot = "counts",
+                           return.seurat = FALSE)
+
+ShotgunPB <- ShotgunPB$RNA
+ShotgunPB <- as.matrix(ShotgunPB)  # Convert to matrix
+ShotgunPB <- t(ShotgunPB) # Transpose matrix
+ShotgunPB <- as.data.frame(ShotgunPB) # Convert from matrix to dataframe 
+
+ShotgunPB_20 <- ShotgunPB[, 1:20]
+
+head(ShotgunPB_20, 15)
+
+write.csv(ShotgunPB, here("2024KPMP_Psuedobulk_class.csv"))
+
+```
+
+### Cell Number
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+Idents(KPMP) <- KPMP@meta.data$class
+
+t1 <- table(Idents(KPMP), KPMP@meta.data$patient)
+
+t1
+
+t1 <- as.matrix(t1)
+t2 <- as.data.frame(t1) 
+
+t2
+
+write.csv(t2, here("2024KPMP_CellNumber_class.csv"))
+
+```
+
+
+# Session Info
+
+```{r echo=TRUE, warning=FALSE, error=FALSE, message=FALSE, fig.align = 'center'}
+
+Sys.time()
+
+sessionInfo()
+
+```

@@ -1,0 +1,104 @@
+10-31-24
+--------
+Jesse, Lu, Jonathan
+Jonathan Nelson - medicine nephrology, kidney disease, snRNAseq
+Is Visium useless? it's not really "single cell"
+Diabetic kidney disease (DKD) ~ youth onset T2D
+PFAS may be related
+Proximal tubule cells may be involved in PFAS accumulation in kidney
+Human cohort w/ kidney biopsies, 70 scRNAseq, spatial proteomics(?)
+Not our data, have to check with UMich about hypotheses
+Jonathan making mouse model for sc/spatial(?)
+Jonathan prefers single nucleus to single cell
+Anything PFAS-related is "completely open"
+Kidney Precision Medicine Project (KPMP) - lots of different data types, annotated
+Jonathan will put together Venn diagram of different data types, go over KPMP paper
+
+
+2024-11-14
+----------
+Jesse, Lu, Jonathan, Dave
+Jonathan presenting on KPMP paper (Lake et al)
+kidneys are routinely biopsied -> cores
+diseases: AKI (acute kidney injury), CKD (chronic kidney disease)
+human kidney cell atlas
+lots of different omic assays (scRNA, snRNA, snATAC, spatial)
+states "healthy", "adaptive", "damaged"
+"adaptive score" to assess how non-standard each cell is
+Jesse talking about PFAS
+certain PFAS have long half-lives (3-7 years), differences may be due to kidney
+single cell from 21 kidney biopsies (Renal-HEIR, kids with T2D, but not CKD), mapped to KPMP data
+found "significant" association between ABCG2 expression and PFNA (type of PFAS) in a couple cell types (MC and aPT)
+want to replicate this study in KPMP data
+
+
+2024-11-25
+----------
+Jesse, Lu, Jonathan
+Jesse and Jonathan are planning experiments w/ spatial genomics, 10x
+compare kidneys from mice (control diet vs. PFAS)
+phenotype data about kidney function, weight
+Xenium spatial data (5K panel + 100 selected genes)
+neighborhood analysis for differential spatial structure?
+integrate spatial (imaging) + single nuc. + outcomes (kidney injury measures)
+high vs. low PFAS within disease groups
+AKI might have less confounding
+Jonathan ran bioinformatics club at previous university
+starting up at USC, invited 10x reps
+they also "have" spatial metabolomics data
+resolution is not equivalent from sample to sample
+Next time: I talk about spatial work with David Braun and domain/repulsion analysis (neighborhoods, attrn/repulsn, Kontextual?)
+
+
+2024-12-19
+----------
+Jesse, Lu
+STimage-1K4M - large collection of public ST data
+"multi-modal" use H&E staining image
+
+
+2025-01-16
+----------
+new KPMP release 1.5
+2.0 will include new cell annotations, new data, enrolling 1000 people
+most samples with multiple assays were sick, healthy controls have fewer assays available
+pseudobulk by cell type, patient
+cell types: high-level or low-level IDs? high-level = more reliable, low-level -> more specific results
+subclass L1 - higher level
+albumineria is a confounder, bi-directional w/PFAS
+might limit sample based on albumin levels
+discretize PFAS into quartiles? or use EPA-set cutoffs?
+there are new algorithms for spatial region detection for multi-slice
+Jonathan: big paper came out with 4 major kidney microenvironments
+spRNA-seq = spatial
+two projects: (1) single cell data pseudobulk, PFAS effects
+(2) spatial patterns, effects of PFAS
+Jesse: fit separate models based on albumin level, then use meta-analysis to asses PFAS effects
+
+
+2025-01-16
+----------
+KPMP single cell pseudobulk data at multiple levels, some clinical information
+want DE genes based on continuum of PFAS levels
+137 people with PFAS data
+should be able to subset down to just those with PFAS
+137 spot urine samples, 110 timed urine samples (12+hrs)
+ - acute = AIN, ATI
+ - healthy
+ - chronic = DKD, HTN
+ - undetermined/other
+albumin / albumineria is important control (related to total amount)
+ACR (albumin to creatinine level) has R^2 of .5
+acute conditions don't have sustained albumineria, chronic conditions do, which can lead to peeing out PFAS
+PFAS -> gene expression needs to be adjusted for ACR
+hyp: exposure to PFAS causes toxicity in proximal tubule. Want to find genetic signature for that
+look for metabolic disruption in list of DE genes
+include 4-level disease factor
+Jesse will uploaded updated clinical data
+
+
+
+
+
+
+
