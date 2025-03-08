@@ -97,6 +97,12 @@ include 4-level disease factor
 Jesse will uploaded updated clinical data
 
 
+2025-02-27
+----------
+Jesse idea: treat pseudobulk as multi-omic data - each cell type a different "omic" layer
+JIVE / MOFA for dimensionality reduction
+different model: keep single-cell data, random intercept for patient, model by cell type
+
 
 
 
