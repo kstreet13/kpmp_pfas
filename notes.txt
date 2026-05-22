@@ -104,6 +104,73 @@ JIVE / MOFA for dimensionality reduction
 different model: keep single-cell data, random intercept for patient, model by cell type
 
 
+2026-04-30
+----------
+field trip, big group
+Dechen Lin 
+wet lab tumor studies, patient-derived organoid models
+visium HD, xenium 5K, stereo-seq
+TMA's (lots of tissue samples packed together, but separable for analysis)
+students do some scRNAseq and spatial analysis
+they got catalyst grant to use spatial to understand treatment response early cancer prevention
+TMA - 30 circles, split into 4x2 rectangles for xenium
+potentially good fit for parallel PBSF model?
+ex. analysis:
+mouse tongue organoid with crispr knockouts for cancer
+double KO vs. triple KO, implanted tumors
+spatial pattern: double KO: tumor more confined, triple KO: tumor more diffused
+fewer NK, cycling CD8+ T cells in triple KO. those cells not as close to tumor cells
+permutation testing, looks like imcRtools
+other dataset:
+17 visium HD for head and neck squamous cancer (HNSCC) + 3 visium (SD)
+comparing treatment resistant vs treatment sensitive
+RCTD using scRNAseq (manually annotated) as reference for cell type annotation
+intra-tumor clonality based on copy number
+able to map clones spatially
+theory is that higher clonality makes treatment harder
+cell-charter for identifying neighborhoods
+in cured group, cancer cells "cluster" with immune cells. Less consistent in resistant group
+cNMF gene programs, non-negative matrix factorization
+doesn't work well, gene programs are highly sample-specific
+
+
+
+2026-04-30
+----------
+Lu & Kelly follow-up with Dechen Lin
+TMAs (many circles) were mostly Visium HD
+also have Xenium TMAs, may be good application of PBSF
+neighborhood analysis
+shape of neighborhood is important
+similar method: ISCHIA
+start with macro scale: tumor, border, stromal
+spatial will have single-cell resolution
+stereo-seq is sub-cellular (can see mitochondria, ER)
+pathologists had to circle tumors in each core (based on H&E)
+still gold standard, but interested in automated tumor detection
+tumor cells are highly heterogeneous
+interested in how they're organized
+they looked at scRNAseq, correlation in cell type abundance
+hard to study tumor in Xenium 5K, not enough epithelial genes
+they made custom 100-gene panel (expensive)
+spatial proximity is necessary for defining neighborhoods, but not necessarily sufficient - LR pairing could strengthen evidence for neighborhood
+
+
+2026-05-11
+----------
+Kelly discussion with Lin lab re: trajectory inference
+single-cell atlas of cellular hetergeneity in HNSCC TME
+head/neck cancer, different stages
+focus on tumor-enriched monocytes (subset of myeloid), increases with tumor development
+want to prove they're monocytes
+---
+general discussion of TI best practices
+spatial TI? mostly just spatial dim reduc.
+
+
+
+
+
 
 
 
